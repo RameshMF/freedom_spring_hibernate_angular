@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:jee="http://www.springframework.org/schema/jee" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd 
+       	 http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
+         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.2.xsd 
+		 http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd 
+		 http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.2.xsd 
+		 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+         
+    <import resource="/spring-security.xml" />
+    <import resource="/property-configurer.xml" />
+    
+    <context:component-scan base-package="com.viscount.freedom"/>
+    
+    <!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven/>
+	<tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager"/>
+<!-- 	<mvc:default-servlet-handler/> -->
+	
+	<context:annotation-config />
+	
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<mvc:resources mapping="/resources/**" location="/WEB-INF/resources/"/>
+	<!-- <mvc:resources mapping="/view/**" location="/views/" /> -->
+	
+	<!-- <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/> -->
+	
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	    <property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/views/"/>
+		<property name="suffix" value=".jsp"/>
+		<property name="order" value="1" />
+	</bean>
+	
+	<!-- This is the base package where all json contollers will be read identified from. -->
+	<mvc:interceptors>
+    	<bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+        	<property name="cacheSeconds" value="0"/>
+        	<property name="useExpiresHeader" value="true"/>
+        	<property name="useCacheControlHeader" value="true"/>
+        	<property name="useCacheControlNoStore" value="true"/>
+    	</bean>
+	</mvc:interceptors>
+	
+    <bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames" value="classpath:messages" />
+		<property name="useCodeAsDefaultMessage" value="true" />
+		<property name="defaultEncoding" value="UTF-8" />
+	</bean>
+
+	<!-- Path to scan for web application related beans -->	
+	<context:component-scan base-package="com.viscount.freedom.dbconfig.*.controller" />
+	<context:component-scan base-package="com.viscount.freedom.dbconfig.*.service" />
+	<context:component-scan base-package="com.viscount.freedom.dbconfig.*.dao" />
+	
+	<!-- Database Configuration Start -->
+	<bean id="dataSource" class="com.viscount.freedom.dbconfig.config.CustomBasicDataSource"	>
+		<property name="driverClassName" value="${jdbc.driver.class.name}" />
+		<property name="url" value="${jdbc.database.url}" />
+		<property name="username" value="${jdbc.database.username}" />
+		<property name="password" value="${jdbc.database.password}" />
+	</bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="annotatedClasses">
+			<list>
+			    <!-- All Pojo classes -->
+				<value>com.viscount.freedom.dbconfig.domain.DatabaseDetail</value>
+                                <value>com.viscount.freedom.dbconfig.domain.GlobalData</value>
+			<!-- 		<value>com.viscount.freedom.user.domain.AdminUser</value>
+	            <value>com.viscount.freedom.user.domain.Role</value>
+	            <value>com.viscount.freedom.user.domain.UserRole</value>
+	            <value>com.viscount.freedom.user.domain.UserRoleModule</value>
+	            <value>com.viscount.freedom.user.domain.Module</value> -->
+	            <!-- <value>com.viscount.freedom.domains.Accessgroupldapgroups</value>
+				<value>com.viscount.freedom.domains.Accessgroupldaporganizationunits</value>
+				<value>com.viscount.freedom.domains.Adminusers</value>
+				<value>com.viscount.freedom.domains.Adminusersites</value>
+				<value>com.viscount.freedom.domains.Alarmlogs</value>
+				<value>com.viscount.freedom.domains.Alertlevel</value>
+				<value>com.viscount.freedom.domains.Amsserver</value>
+				<value>com.viscount.freedom.domains.Auditdata</value>
+				<value>com.viscount.freedom.domains.Busadmins</value>
+				<value>com.viscount.freedom.domains.Buscas</value>
+				<value>com.viscount.freedom.domains.Busflooraccess</value>
+				<value>com.viscount.freedom.domains.Busguestaccess</value>
+				<value>com.viscount.freedom.domains.Business</value>
+				<value>com.viscount.freedom.domains.Bususeraccess</value>
+				<value>com.viscount.freedom.domains.Cacerts</value>
+				<value>com.viscount.freedom.domains.Cameras</value>
+				<value>com.viscount.freedom.domains.Carddata</value>
+				<value>com.viscount.freedom.domains.Cardformat</value>
+				<value>com.viscount.freedom.domains.CardTemplates</value>
+				<value>com.viscount.freedom.domains.Caschedules</value>
+				<value>com.viscount.freedom.domains.Certificatepolicies</value>
+				<value>com.viscount.freedom.domains.Certificates</value>
+				<value>com.viscount.freedom.domains.Credentials</value>
+				<value>com.viscount.freedom.domains.Crl</value>
+				<value>com.viscount.freedom.domains.Customfielditems</value>
+				<value>com.viscount.freedom.domains.Customfields</value>
+				<value>com.viscount.freedom.domains.DblogCarddata</value>
+				<value>com.viscount.freedom.domains.DblogCertificates</value>
+				<value>com.viscount.freedom.domains.DblogCredentials</value>
+				<value>com.viscount.freedom.domains.DblogImages</value>
+				<value>com.viscount.freedom.domains.DblogQueue</value>
+				<value>com.viscount.freedom.domains.DblogUseraccessgroups</value>
+				<value>com.viscount.freedom.domains.DblogUsernotes</value>
+				<value>com.viscount.freedom.domains.DblogUsers</value>
+				<value>com.viscount.freedom.domains.Dbnodes</value>
+				<value>com.viscount.freedom.domains.Deviceports</value>
+				<value>com.viscount.freedom.domains.DeviceportsId</value>
+				<value>com.viscount.freedom.domains.Devices</value>
+				<value>com.viscount.freedom.domains.Devicestatus</value>
+				<value>com.viscount.freedom.domains.DevicestatusId</value>
+				<value>com.viscount.freedom.domains.Dvrservers</value>
+				<value>com.viscount.freedom.domains.Fargroup</value>
+				<value>com.viscount.freedom.domains.Fbconnection</value>
+				<value>com.viscount.freedom.domains.Flooraccessgroups</value>
+				<value>com.viscount.freedom.domains.Flooraccessrights</value>
+				<value>com.viscount.freedom.domains.Floorplans</value>
+				<value>com.viscount.freedom.domains.Gargroup</value>
+				<value>com.viscount.freedom.domains.Guestaccessrights</value>
+				<value>com.viscount.freedom.domains.GuestaccessrightsId</value>
+				<value>com.viscount.freedom.domains.Holidays</value>
+				<value>com.viscount.freedom.domains.Idspanels</value>
+				<value>com.viscount.freedom.domains.Images</value>
+				<value>com.viscount.freedom.domains.Inputaction</value>
+				<value>com.viscount.freedom.domains.Instructions</value>
+				<value>com.viscount.freedom.domains.Ldapgroups</value>
+				<value>com.viscount.freedom.domains.Ldaporganizationunits</value>
+				<value>com.viscount.freedom.domains.Ldapserver</value>
+				<value>com.viscount.freedom.domains.Logs</value>
+				<value>com.viscount.freedom.domains.Mapgroups</value>
+				<value>com.viscount.freedom.domains.Mapicons</value>
+				<value>com.viscount.freedom.domains.Maps</value>
+				<value>com.viscount.freedom.domains.Mapzones</value>
+				<value>com.viscount.freedom.domains.Mustertemplates</value>
+				<value>com.viscount.freedom.domains.Objectids</value>
+				<value>com.viscount.freedom.domains.Panels</value>
+				<value>com.viscount.freedom.domains.Pivconfig</value>
+				<value>com.viscount.freedom.domains.Portlocation</value>
+				<value>com.viscount.freedom.domains.Rargroup</value>
+				<value>com.viscount.freedom.domains.RefreshCache</value>
+				<value>com.viscount.freedom.domains.Resolutions</value>
+				<value>com.viscount.freedom.domains.Sagroup</value>
+				<value>com.viscount.freedom.domains.Sausers</value>
+				<value>com.viscount.freedom.domains.Schedule</value>
+				<value>com.viscount.freedom.domains.Scheduleperiods</value>
+				<value>com.viscount.freedom.domains.Sites</value>
+				<value>com.viscount.freedom.domains.Suitefloorgroups</value>
+				<value>com.viscount.freedom.domains.Suites</value>
+				<value>com.viscount.freedom.domains.Systemports</value>
+				<value>com.viscount.freedom.domains.Tiareport</value>
+				<value>com.viscount.freedom.domains.Useraccessgroups</value>
+				<value>com.viscount.freedom.domains.Useraccessrights</value>
+				<value>com.viscount.freedom.domains.Usercategories</value>
+				<value>com.viscount.freedom.domains.Userldapgroups</value>
+				<value>com.viscount.freedom.domains.Usernotes</value>
+				<value>com.viscount.freedom.domains.Users</value>
+				<value>com.viscount.freedom.domains.UsersSync</value>
+				<value>com.viscount.freedom.domains.Z9config</value>
+				<value>com.viscount.freedom.domains.Zonecameras</value>
+				<value>com.viscount.freedom.domains.Zonedevices</value>
+				<value>com.viscount.freedom.domains.Zonegroupexempt</value>
+				<value>com.viscount.freedom.domains.Zonegroups</value>
+				<value>com.viscount.freedom.domains.Zonegroupzones</value>
+				<value>com.viscount.freedom.domains.Zoneidspanels</value>
+				<value>com.viscount.freedom.domains.Zonelinks</value>
+				<value>com.viscount.freedom.domains.Zonepanels</value>
+				<value>com.viscount.freedom.domains.ZonepanelsId</value>
+				<value>com.viscount.freedom.domains.Zones</value>
+				<value>com.viscount.freedom.domains.Zoneusers</value> -->
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				 <prop key="hibernate.dialect">${jdbc.hibernate.dialect}</prop>
+	             <prop key="hibernate.show_sql">${jdbc.hibernate.show.sql}</prop>
+	             <prop key="hibernate.format_sql">${jdbc.hibernate.format.sql}</prop>
+<!-- 				<prop key="hibernate.hbm2ddl.auto">create</prop> -->
+			</props>
+		</property>
+	</bean>
+	
+<!-- 		<bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate"> -->
+<!-- 	       <property name="sessionFactory" ref="sessionFactory"></property> -->
+<!-- 		 </bean> -->
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager"
+		p:sessionFactory-ref="sessionFactory">
+	</bean>
+	<!-- Database Configuration Stop -->
+	<bean id="adminUserDao" class="com.viscount.freedom.user.dao.impl.AdminUserDaoImpl"></bean>
+</beans>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		 http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="propertiesConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="searchSystemEnvironment" value="true" />
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+				<value>classpath:common.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="dbGlobalProperties"
+	      class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	  <property name="locations">
+	    <list>
+				<value>classpath:global_data.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="log4jInitialization" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	   <property name="targetClass" value="org.springframework.util.Log4jConfigurer"/>
+	   <property name="targetMethod" value="initLogging"/>
+	   <property name="arguments">
+	     <list>
+	       <value>classpath:log4j.properties</value>
+	     </list>
+	  </property>
+	</bean>
+
+</beans>
+<!-- ${gedds.webviewer.log4j.config.file} -->
